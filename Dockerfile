@@ -1,31 +1,18 @@
-# Use the official Bun image from Oven (edge tag used as an example; adjust if needed)
-FROM oven-sh/bun:latest AS builder
-
-# Set working directory in the container
+# 🚀 Fast build Dockerfile
+FROM oven/bun:latest
 WORKDIR /app
 
-# Copy package files first to leverage Docker cache
-COPY package.json bun.lockb ./
+# Only copy dependency files first to leverage Docker cache
+COPY bun.lock package.json ./
 
-# Install dependencies with Bun
-RUN bun install
+# Install dependencies (cached if lockfile didn't change)
+RUN bun install --frozen-lockfile
 
-# Copy the rest of the source code
+# Copy the rest of your source code
 COPY . .
 
-# Optionally, build the TypeScript files if you have a build step (uncomment if needed)
-# RUN bun build
-
-# Use the same image for the final runtime
-FROM oven-sh/bun:latest
-
-WORKDIR /app
-
-# Copy the source code and dependencies from the builder stage
-COPY --from=builder /app .
-
-# Expose the port (adjust if different)
+# Expose your app's port
 EXPOSE 3000
 
-# Command to run the Bun application
+# Run your Bun app (adjust the entrypoint if necessary)
 CMD ["bun", "run", "src/app.ts"]
