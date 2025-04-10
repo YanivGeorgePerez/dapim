@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+
+    <!-- Load layout (global) CSS -->
+    <link rel="stylesheet" href="/styles/layout.css" />
+
+    <!-- Load page-specific CSS -->
+    <link rel="stylesheet" href="<%= cssFile %>" />
+  </head>
+
+  <body>
+    <!-- Include Navbar -->
+    <%- include("partials/navbar") %>
+
+    <!-- Main Content -->
+    <div class="content">
+      <%- body %> <!-- Actual page content goes here -->
+    </div>
+
+    <!-- Include Footer -->
+    <%- include("partials/footer") %>
+  </body>
+</html>

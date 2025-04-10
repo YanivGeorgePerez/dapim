@@ -1,0 +1,25 @@
+<nav class="navbar">
+    <div class="navbar-content">
+      <div class="left-links">
+        <a href="/">Home</a>
+        <% if (user) { %>
+          <a href="/create">Create Paste</a>
+        <% } %>
+      </div>
+      <div class="right-links">
+        <% if (user) { %>
+          <div class="dropdown">
+            <button class="dropdown-btn"><%= user %> ⌄</button>
+            <div class="dropdown-content">
+              <a href="/profile">Profile</a>
+              <a href="/logout">Logout</a>
+            </div>
+          </div>
+        <% } else { %>
+          <a href="/login">Login</a>
+          <a href="/register">Register</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+  

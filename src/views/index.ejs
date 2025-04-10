@@ -1,0 +1,31 @@
+<h1>Latest Pastes</h1>
+
+<form method="GET" action="/" style="margin-bottom: 2rem;">
+  <input type="text" name="q" placeholder="Search pastes..." value="<%= query %>" style="width: 60%; padding: 0.5rem;">
+  <button type="submit" class="search-button">Search</button>
+</form>
+
+<table class="pastes-table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Views</th>
+      <th>Created</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (pastes.length > 0) { %>
+      <% pastes.forEach((p, index) => { %>
+        <tr class="<%= index % 2 === 0 ? 'even' : 'odd' %>">
+          <td><a href="/paste/<%= p.id %>"><%= p.title %></a></td>
+          <td><%= p.views ? p.views.length : 0 %></td>
+          <td><%= p.createdAt.toLocaleString() %></td>
+        </tr>
+      <% }); %>
+    <% } else { %>
+      <tr>
+         <td colspan="3">No pastes found.</td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>

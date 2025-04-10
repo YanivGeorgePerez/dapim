@@ -1,0 +1,37 @@
+<div class="paste-container">
+  <div class="paste-main">
+    <h1 class="paste-title"><%= paste.title %></h1>
+    <div class="paste-meta">
+      <span>Created by <strong><%= paste.user %></strong></span>
+      <span> on <%= paste.createdAt.toLocaleString() %></span>
+    </div>
+    <div class="paste-content">
+      <pre><%= paste.content %></pre>
+    </div>
+  </div>
+  <div class="paste-comments-card">
+    <h2>Comments</h2>
+    <% if (paste.comments.length > 0) { %>
+      <ul class="comments-list">
+        <% paste.comments.forEach(comment => { %>
+          <li class="comment-item">
+            <div class="comment-header">
+              <strong><%= comment.user %></strong>
+              <small><%= comment.createdAt.toLocaleString() %></small>
+            </div>
+            <div class="comment-body">
+              <%= comment.content %>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>No comments yet.</p>
+    <% } %>
+    <hr>
+    <form method="POST" action="/paste/<%= paste.id %>/comment" class="comment-form">
+      <textarea name="content" rows="3" placeholder="Add a comment..." required></textarea>
+      <button type="submit">Post Comment</button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,116 @@
+/* Container holding both the main paste and the comments card */
+.paste-container {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* Responsive stacking for mobile */
+  @media (max-width: 768px) {
+    .paste-container {
+      flex-direction: column;
+    }
+  }
+  
+  /* Left section: main paste content */
+  .paste-main {
+    flex: 2;
+  }
+  
+  .paste-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+  
+  .paste-meta {
+    margin-bottom: 1rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  
+  /* Paste content card */
+  .paste-content pre {
+    background-color: #0f0f0f;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-family: 'Fira Code', monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+  }
+  
+  /* Right section: comments card */
+  .paste-comments-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    height: fit-content;
+  }
+  
+  .paste-comments-card h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  
+  /* Comments list styling */
+  .comments-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .comment-item {
+    margin-bottom: 1rem;
+  }
+  
+  .comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .comment-body {
+    background-color: #0f0f0f;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  
+  /* Comment form styling */
+  .comment-form textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    background-color: #101010;
+    color: var(--text);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    resize: vertical;
+    margin-bottom: 0.75rem;
+  }
+  
+  .comment-form button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--accent);
+    color: black;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .comment-form button:hover {
+    background-color: var(--accent-hover);
+  }
+  

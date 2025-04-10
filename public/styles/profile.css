@@ -1,0 +1,20 @@
+.profile-pastes {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .profile-pastes li {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .profile-pastes li a {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  
+  .profile-pastes li a:hover {
+    color: var(--accent-hover);
+  }
+  

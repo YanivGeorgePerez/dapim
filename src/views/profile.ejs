@@ -1,0 +1,17 @@
+<h1><%= profileUser %>'s Profile</h1>
+
+<h2>Pastes</h2>
+<% if (pastes.length > 0) { %>
+  <ul class="profile-pastes">
+    <% pastes.forEach(p => { %>
+      <li>
+         <a href="/paste/<%= p.id %>"><%= p.title %></a>
+         <small>— created on <%= p.createdAt.toLocaleString() %></small>
+      </li>
+    <% }); %>
+  </ul>
+<% } else { %>
+  <p>No pastes found.</p>
+<% } %>
+
+<!-- Optionally, you could list comments made by this user here if desired. -->

@@ -1,0 +1,71 @@
+/* Textarea styling for paste creation (if applicable) */
+textarea {
+  width: 100%;
+  min-height: 200px;
+  background-color: #0f0f0f;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-family: monospace;
+  resize: vertical;
+}
+
+/* General button styling */
+button {
+  margin-top: 1rem;
+  padding: 0.7rem 1.5rem;
+  background-color: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* New style for search button to tone down the hover color */
+.search-button {
+  background-color: #555; /* Muted dark color for search */
+  color: #fff;
+}
+
+.search-button:hover {
+  background-color: #444; /* Slightly darker on hover */
+}
+
+/* ===================== TABLE STYLING ===================== */
+.pastes-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pastes-table th,
+.pastes-table td {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.pastes-table th {
+  background-color: var(--surface-2);
+}
+
+.pastes-table tr.even {
+  background-color: #121212; /* Use your base surface */
+}
+
+.pastes-table tr.odd {
+  background-color: #1c1c1c; /* A slightly lighter variant for contrast */
+}
+
+.pastes-table tr:hover {
+  background-color: var(--surface-2);
+}
+
+/* Remove button hover override from the general rule if needed */
+button:hover {
+  background-color: var(--accent-hover);
+}
