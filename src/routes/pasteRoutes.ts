@@ -1,7 +1,9 @@
 import { PasteService } from "../services/pasteService.ts";
 import { AuthService } from "../services/authService.ts";
 import { setSessionCookie, getUserFromRequest } from "../lib/session.ts";
+import { destroySession } from "../lib/sessionManager.ts";
 import { verifyRecaptcha } from "../lib/recaptcha.ts";
+import { parse } from "cookie";
 import path from "path";
 
 const pasteService = new PasteService();
@@ -58,7 +60,7 @@ export const pasteRoutes = async (req: Request) => {
           headers: { "Content-Type": "text/html" },
         });
       }
-      // Retrieve client IP from headers (adjust as needed for Cloudflare)
+      // Retrieve client IP (adjust as needed for Cloudflare)
       const clientIp = req.headers.get("x-forwarded-for") ||
         req.headers.get("remote-addr") ||
         "unknown";
@@ -241,7 +243,7 @@ export const pasteRoutes = async (req: Request) => {
         headers: { "Content-Type": "text/html" },
       });
     }
-
+    
     if (!username.trim() || !password.trim()) {
       return new Response("Username and password cannot be empty", {
         status: 400,
@@ -347,10 +349,18 @@ export const pasteRoutes = async (req: Request) => {
   // LOGOUT
   // ------------------
   if (req.method === "GET" && url.pathname === "/logout") {
+    // Parse cookies to get the session id
+    const cookieHeader = req.headers.get("cookie");
+    if (cookieHeader) {
+      const cookies = parse(cookieHeader);
+      if (cookies.session) {
+        await destroySession(cookies.session);
+      }
+    }
     return new Response("", {
       status: 302,
       headers: {
-        "Set-Cookie": "user=; Path=/; Max-Age=0",
+        "Set-Cookie": "session=; Path=/; Max-Age=0",
         Location: "/",
       },
     });
