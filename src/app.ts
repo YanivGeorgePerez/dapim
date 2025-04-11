@@ -40,14 +40,25 @@ function getMimeType(filePath: string): string {
   }[ext] || "application/octet-stream";
 }
 
+// Utility to get client IP, respecting Cloudflare's header
+function getClientIp(req: Request): string {
+  return req.headers.get("cf-connecting-ip") ||
+         req.headers.get("x-forwarded-for") ||
+         req.headers.get("remote-addr") ||
+         "unknown";
+}
+
 const server = serve({
   port: 3000,
   async fetch(req) {
-    // Serve static files first
+    // Static files first.
     const staticResponse = await staticFileHandler(req);
     if (staticResponse) return staticResponse;
 
-    // Otherwise, handle routes
+    // Optionally, you can pass the client IP to your routes or log it.
+    // Example: console.log("Client IP:", getClientIp(req));
+
+    // Otherwise, handle routes.
     return pasteRoutes(req);
   },
 });
