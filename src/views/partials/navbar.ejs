@@ -1,25 +1,50 @@
 <nav class="navbar">
-    <div class="navbar-content">
-      <div class="left-links">
-        <a href="/">Home</a>
-        <% if (user) { %>
-          <a href="/create">Create Paste</a>
-        <% } %>
-      </div>
-      <div class="right-links">
-        <% if (user) { %>
-          <div class="dropdown">
-            <button class="dropdown-btn"><%= user %> ⌄</button>
-            <div class="dropdown-content">
-              <a href="/profile">Profile</a>
-              <a href="/logout">Logout</a>
-            </div>
-          </div>
-        <% } else { %>
-          <a href="/login">Login</a>
-          <a href="/register">Register</a>
-        <% } %>
-      </div>
+  <div class="navbar-content">
+    <div class="left-links">
+      <a href="/">
+        <img src="/icons/home.svg" alt="Home" class="nav-icon" />
+        Home
+      </a>
+      <% if (user) { %>
+        <a href="/create">
+          <img src="/icons/plus.svg" alt="Create" class="nav-icon" />
+          Create Paste
+        </a>
+      <% } %>
+      <a href="/tos">
+        <img src="/icons/file.svg" alt="TOS" class="nav-icon" />
+        Terms
+      </a>
     </div>
-  </nav>
-  
+
+    <div class="right-links">
+      <% if (user) { %>
+        <div class="dropdown">
+          <button class="dropdown-btn">
+            <img src="/icons/user.svg" alt="User" class="nav-icon" />
+            <%= user %> ⌄
+          </button>
+          <div class="dropdown-content">
+            <a href="/profile">
+              <img src="/icons/profile.svg" alt="Profile" class="nav-icon" />
+              Profile
+            </a>
+            <a href="/logout">
+              <img src="/icons/logout.svg" alt="Logout" class="nav-icon" />
+              Logout
+            </a>
+          </div>
+        </div>
+      <% } else { %>
+        <a href="/login">
+          <img src="/icons/login.svg" alt="Login" class="nav-icon" />
+          Login
+        </a>
+        <a href="/register">
+          <img src="/icons/register.svg" alt="Register" class="nav-icon" />
+          Register
+        </a>
+      <% } %>
+    </div>
+  </div>
+</nav>

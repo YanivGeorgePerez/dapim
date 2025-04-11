@@ -125,7 +125,21 @@
   .dropdown-content a:hover {
     background-color: var(--surface-2);
   }
-  
+  /* ===================== NAV ICONS ===================== */
+.nav-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  filter: invert(1); /* make it white */
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+
+.navbar a:hover .nav-icon,
+.dropdown-btn:hover .nav-icon {
+  opacity: 1;
+}
+
   .dropdown:hover .dropdown-content {
     display: block;
   }
