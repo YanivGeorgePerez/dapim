@@ -81,6 +81,20 @@ export const pasteRoutes = async (req: Request) => {
   }
 
   // ------------------
+  // TOS PAGE
+  // ------------------
+  if (req.method === "GET" && url.pathname === "/tos") {
+    return new Response(
+      await renderEJS("tos", {
+        title: "Terms of Service",
+        cssFile: "/styles/home.css",
+        req,
+      }) as string,
+      { status: 200, headers: { "Content-Type": "text/html" } }
+    );
+  }
+
+  // ------------------
   // CREATE PASTE PAGE (Render Form)
   // ------------------
   if (req.method === "GET" && url.pathname === "/create") {
