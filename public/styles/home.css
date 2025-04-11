@@ -64,6 +64,36 @@ button {
 .pastes-table tr:hover {
   background-color: var(--surface-2);
 }
+/* Intro Card Styling */
+.intro-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+/* Additional optional styling for links in the table */
+.paste-link {
+  color: var(--accent);
+}
+
+.paste-link:hover {
+  text-decoration: underline;
+}
+
+.user-link {
+  color: var(--accent);
+}
+
+.user-link:hover {
+  text-decoration: underline;
+}
+
+/* Keep your existing table and button styles as-is */
 
 /* Remove button hover override from the general rule if needed */
 button:hover {
