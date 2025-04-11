@@ -9,6 +9,7 @@
   <thead>
     <tr>
       <th>Title</th>
+      <th>User</th>
       <th>Views</th>
       <th>Created</th>
     </tr>
@@ -17,14 +18,21 @@
     <% if (pastes.length > 0) { %>
       <% pastes.forEach((p, index) => { %>
         <tr class="<%= index % 2 === 0 ? 'even' : 'odd' %>">
-          <td><a href="/paste/<%= p.id %>"><%= p.title %></a></td>
+          <!-- Title links to the paste view -->
+          <td>
+            <a href="/paste/<%= p.id %>" class="paste-link"><%= p.title %></a>
+          </td>
+          <!-- User links to the user's profile -->
+          <td>
+            <a href="/profile/<%= p.user %>" class="user-link"><%= p.user %></a>
+          </td>
           <td><%= p.views ? p.views.length : 0 %></td>
           <td><%= p.createdAt.toLocaleString() %></td>
         </tr>
       <% }); %>
     <% } else { %>
       <tr>
-         <td colspan="3">No pastes found.</td>
+        <td colspan="4">No pastes found.</td>
       </tr>
     <% } %>
   </tbody>

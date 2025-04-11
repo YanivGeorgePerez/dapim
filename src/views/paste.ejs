@@ -2,7 +2,12 @@
   <div class="paste-main">
     <h1 class="paste-title"><%= paste.title %></h1>
     <div class="paste-meta">
-      <span>Created by <strong><%= paste.user %></strong></span>
+      <span>
+        Created by 
+        <a href="/profile/<%= paste.user %>" class="user-link">
+          <strong><%= paste.user %></strong>
+        </a>
+      </span>
       <span> on <%= paste.createdAt.toLocaleString() %></span>
     </div>
     <div class="paste-content">
@@ -16,7 +21,9 @@
         <% paste.comments.forEach(comment => { %>
           <li class="comment-item">
             <div class="comment-header">
-              <strong><%= comment.user %></strong>
+              <a href="/profile/<%= comment.user %>" class="user-link">
+                <strong><%= comment.user %></strong>
+              </a>
               <small><%= comment.createdAt.toLocaleString() %></small>
             </div>
             <div class="comment-body">

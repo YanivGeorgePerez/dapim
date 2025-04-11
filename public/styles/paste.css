@@ -1,4 +1,4 @@
-/* Container holding both the main paste and the comments card */
+/* ===================== PASTE PAGE CONTAINER ===================== */
 .paste-container {
     display: flex;
     gap: 2rem;
@@ -12,7 +12,7 @@
     }
   }
   
-  /* Left section: main paste content */
+  /* ===================== LEFT SECTION: MAIN PASTE ===================== */
   .paste-main {
     flex: 2;
   }
@@ -29,7 +29,17 @@
     font-size: 0.9rem;
   }
   
-  /* Paste content card */
+  /* Style for the username links */
+  .user-link {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  
+  .user-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* Paste content card styling */
   .paste-content pre {
     background-color: #0f0f0f;
     padding: 1.5rem;
@@ -42,7 +52,7 @@
     margin: 0;
   }
   
-  /* Right section: comments card */
+  /* ===================== RIGHT SECTION: COMMENTS CARD ===================== */
   .paste-comments-card {
     flex: 1;
     background: var(--surface);
@@ -85,7 +95,7 @@
     white-space: pre-wrap;
   }
   
-  /* Comment form styling */
+  /* ===================== COMMENT FORM STYLING ===================== */
   .comment-form textarea {
     width: 100%;
     padding: 0.75rem;
