@@ -125,21 +125,21 @@
   .dropdown-content a:hover {
     background-color: var(--surface-2);
   }
-  /* ===================== NAV ICONS ===================== */
-.nav-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 6px;
-  filter: invert(1); /* make it white */
-  opacity: 0.85;
-  transition: opacity 0.2s;
-}
-
-.navbar a:hover .nav-icon,
-.dropdown-btn:hover .nav-icon {
-  opacity: 1;
-}
-
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    stroke: var(--text);
+    stroke-width: 1.8;
+    vertical-align: middle;
+    transition: stroke 0.2s, opacity 0.2s;
+  }
+  
+  .navbar a:hover .nav-icon,
+  .dropdown-btn:hover .nav-icon {
+    stroke: var(--accent-hover);
+  }
+  
   .dropdown:hover .dropdown-content {
     display: block;
   }
