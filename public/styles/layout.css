@@ -1,4 +1,3 @@
-/* ===================== VARIABLES & RESET ===================== */
 :root {
   --bg: #0a0a0a;
   --surface: #121212;
@@ -25,7 +24,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ===================== BASE LINK STYLES ===================== */
 a {
   color: var(--accent);
   text-decoration: none;
@@ -67,6 +65,7 @@ a:hover {
 }
 
 /* ===================== NAVBAR ICONS ===================== */
+.nav-icon,
 .navbar-icon {
   width: 18px;
   height: 18px;
@@ -75,19 +74,23 @@ a:hover {
   max-width: 18px;
   max-height: 18px;
   object-fit: contain;
-  margin-right: 6px;
   vertical-align: middle;
-  filter: invert(1); /* make icons white */
-  transition: filter 0.2s ease;
+  margin-right: 6px;
+  stroke: var(--text);
+  stroke-width: 1.8;
+  filter: invert(1);
+  transition: stroke 0.2s, opacity 0.2s;
 }
 
-
+.navbar a:hover .nav-icon,
+.dropdown-btn:hover .nav-icon,
 .navbar a:hover .navbar-icon,
 .dropdown-btn:hover .navbar-icon {
-  filter: invert(0.85); /* slightly dimmer on hover */
+  stroke: var(--accent-hover);
+  filter: brightness(1.2);
 }
 
-/* ===================== UNIFIED NAVBAR LINKS & BUTTONS ===================== */
+/* ===================== NAV LINKS & DROPDOWN ===================== */
 .navbar a,
 .dropdown-btn {
   display: inline-flex;
@@ -102,7 +105,6 @@ a:hover {
   background: none;
   border: none;
   border-radius: var(--radius);
-  text-decoration: none;
   cursor: pointer;
   transition: background-color 0.15s ease-in-out;
   line-height: 1;
@@ -119,7 +121,6 @@ a:hover {
   background-color: var(--surface-2);
 }
 
-/* ===================== DROPDOWN ===================== */
 .dropdown {
   position: relative;
 }
@@ -162,7 +163,7 @@ a:hover {
   box-shadow: var(--shadow);
 }
 
-/* ===================== FORM ELEMENTS ===================== */
+/* ===================== FORMS ===================== */
 .auth-form,
 .search-form {
   display: flex;
@@ -272,16 +273,19 @@ pre {
     align-items: flex-start;
     gap: 0.5rem;
   }
+
   .navbar-content {
     flex-direction: column;
     width: 100%;
     gap: 0.6rem;
   }
+
   .left-links,
   .right-links {
     flex-direction: column;
     align-items: flex-start;
   }
+
   .content {
     margin: 1rem;
     padding: 1.5rem;
