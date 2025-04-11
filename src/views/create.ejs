@@ -6,5 +6,9 @@
   <label for="content">Content:</label>
   <textarea name="content" id="content" rows="10" placeholder="Enter your paste content here..." required></textarea>
   
+  <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>
   <button type="submit">Create Paste</button>
 </form>
+
+<!-- Load the ReCAPTCHA API script -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>

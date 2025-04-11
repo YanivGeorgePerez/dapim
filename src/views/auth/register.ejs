@@ -2,5 +2,9 @@
 <form method="POST" action="/register">
   <input type="text" name="username" placeholder="Username" required><br>
   <input type="password" name="password" placeholder="Password" required><br>
+  <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>
   <button type="submit">Register</button>
 </form>
+
+<!-- Load the ReCAPTCHA API script -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
