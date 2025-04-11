@@ -1,10 +1,15 @@
 <h1>Register</h1>
-<form method="POST" action="/register">
+<form method="POST" action="/register" class="auth-form">
   <input type="text" name="username" placeholder="Username" required><br>
   <input type="password" name="password" placeholder="Password" required><br>
+
+  <label style="margin-top: 1rem;">
+    <input type="checkbox" name="accept_tos" required>
+    I accept the <a href="/tos" target="_blank">Terms of Service</a>
+  </label>
+
   <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>
   <button type="submit">Register</button>
 </form>
 
-<!-- Load the ReCAPTCHA API script -->
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>

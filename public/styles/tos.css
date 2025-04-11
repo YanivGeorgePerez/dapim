@@ -1,0 +1,60 @@
+/* TOS Page Global Styles */
+body {
+    background-color: #0a0a0a;
+    color: #e5e5e5;
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .tos-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #121212;
+    border: 1px solid #2b2b2b;
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px #1c1c1c, 0 8px 20px rgba(0, 0, 0, 0.6);
+  }
+  
+  h1, h2 {
+    color: #ffffff;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  p, li {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+  
+  ul {
+    padding-left: 1.5rem;
+  }
+  
+  a {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  
+  .effective-date {
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #bbb;
+  }
+  
+  .acknowledgement {
+    font-weight: bold;
+    margin-top: 2rem;
+  }
+  
