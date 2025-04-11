@@ -11,7 +11,7 @@ export const pasteRoutes = async (req: Request) => {
   const url = new URL(req.url);
   const user = getUserFromRequest(req);
 
-  // Helper: Generic error response
+  // Helper: Generic error response for internal errors
   function serverError(): Response {
     return new Response("Server error", {
       status: 500,
@@ -35,6 +35,7 @@ export const pasteRoutes = async (req: Request) => {
           pastes,
           query: q,
           req,
+          recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || ""
         }) as string,
         { status: 200, headers: { "Content-Type": "text/html" } }
       );
@@ -57,7 +58,7 @@ export const pasteRoutes = async (req: Request) => {
           headers: { "Content-Type": "text/html" },
         });
       }
-      // Get client IP (you can adjust this for Cloudflare if needed)
+      // Retrieve client IP from headers (adjust as needed for Cloudflare)
       const clientIp = req.headers.get("x-forwarded-for") ||
         req.headers.get("remote-addr") ||
         "unknown";
@@ -86,6 +87,7 @@ export const pasteRoutes = async (req: Request) => {
         title: "Create Paste",
         cssFile: "/styles/home.css",
         req,
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || ""
       }) as string,
       { status: 200, headers: { "Content-Type": "text/html" } }
     );
@@ -100,7 +102,7 @@ export const pasteRoutes = async (req: Request) => {
     const content = form.get("content")?.toString() || "";
     const recaptchaResponse = form.get("g-recaptcha-response")?.toString() || "";
 
-    // Verify ReCAPTCHA
+    // Verify ReCAPTCHA before processing
     if (!(await verifyRecaptcha(recaptchaResponse))) {
       return new Response("ReCAPTCHA verification failed", {
         status: 400,
@@ -108,7 +110,7 @@ export const pasteRoutes = async (req: Request) => {
       });
     }
 
-    // Basic validation: non-empty and reasonable length
+    // Validate inputs
     if (!pasteTitle.trim() || !content.trim()) {
       return new Response("Title and content cannot be empty", {
         status: 400,
@@ -128,7 +130,7 @@ export const pasteRoutes = async (req: Request) => {
       });
     }
 
-    // Get user from session or default to "Anonymous"
+    // Use session user or default to "Anonymous"
     const creator = user || "Anonymous";
 
     try {
@@ -152,6 +154,7 @@ export const pasteRoutes = async (req: Request) => {
         title: "Register",
         cssFile: "/styles/home.css",
         req,
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || ""
       }) as string,
       { status: 200, headers: { "Content-Type": "text/html" } }
     );
@@ -166,7 +169,6 @@ export const pasteRoutes = async (req: Request) => {
     const password = form.get("password")?.toString() || "";
     const recaptchaResponse = form.get("g-recaptcha-response")?.toString() || "";
 
-    // Verify ReCAPTCHA
     if (!(await verifyRecaptcha(recaptchaResponse))) {
       return new Response("ReCAPTCHA verification failed", {
         status: 400,
@@ -174,7 +176,7 @@ export const pasteRoutes = async (req: Request) => {
       });
     }
 
-    // Validate basic inputs
+    // Basic input validation
     if (!username.trim() || !password.trim()) {
       return new Response("Username and password cannot be empty", {
         status: 400,
@@ -218,6 +220,7 @@ export const pasteRoutes = async (req: Request) => {
         title: "Login",
         cssFile: "/styles/home.css",
         req,
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || ""
       }) as string,
       { status: 200, headers: { "Content-Type": "text/html" } }
     );
@@ -232,14 +235,13 @@ export const pasteRoutes = async (req: Request) => {
     const password = form.get("password")?.toString() || "";
     const recaptchaResponse = form.get("g-recaptcha-response")?.toString() || "";
 
-    // Verify ReCAPTCHA
     if (!(await verifyRecaptcha(recaptchaResponse))) {
       return new Response("ReCAPTCHA verification failed", {
         status: 400,
         headers: { "Content-Type": "text/html" },
       });
     }
-    
+
     if (!username.trim() || !password.trim()) {
       return new Response("Username and password cannot be empty", {
         status: 400,
@@ -267,12 +269,10 @@ export const pasteRoutes = async (req: Request) => {
 
   // ------------------
   // PROFILE ROUTE
-  // This will match /profile and /profile/:name
+  // Matches /profile and /profile/:name
   // ------------------
   if (req.method === "GET" && url.pathname.startsWith("/profile")) {
     let profileUser: string | null = null;
-
-    // If the URL is exactly /profile, use the logged-in user's name.
     if (url.pathname === "/profile") {
       profileUser = user;
       if (!profileUser) {
@@ -319,7 +319,6 @@ export const pasteRoutes = async (req: Request) => {
       });
     }
 
-    // Use session user if available; default to "Anonymous" if not
     const commenter = getUserFromRequest(req) || "Anonymous";
 
     try {
