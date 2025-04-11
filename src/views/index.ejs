@@ -1,46 +1,52 @@
-<h1>Latest Pastes</h1>
-
-<!-- Introduction Card -->
+<!-- Introduction Card outside the main content container -->
 <div class="intro-card">
   <p>
-    Welcome to Dapim – your secure paste platform. Here you can view the latest pastes created by our community. Use the search function below to find pastes quickly, or register and log in to create your own!
+    Welcome to Dapim – your secure paste platform.
+    Here you can view the latest pastes from our community,
+    search for specific content, and, if you're registered,
+    create your very own paste!
   </p>
 </div>
 
-<form method="GET" action="/" style="margin-bottom: 2rem;">
-  <input type="text" name="q" placeholder="Search pastes..." value="<%= query %>" style="width: 60%; padding: 0.5rem;">
-  <button type="submit" class="search-button">Search</button>
-</form>
+<!-- Main Content Container -->
+<div class="content">
+  <h1>Latest Pastes</h1>
 
-<table class="pastes-table">
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>User</th>
-      <th>Views</th>
-      <th>Created</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% if (pastes.length > 0) { %>
-      <% pastes.forEach((p, index) => { %>
-        <tr class="<%= index % 2 === 0 ? 'even' : 'odd' %>">
-          <!-- Title links to the paste view -->
-          <td>
-            <a href="/paste/<%= p.id %>" class="paste-link"><%= p.title %></a>
-          </td>
-          <!-- User links to the user's profile -->
-          <td>
-            <a href="/profile/<%= p.user %>" class="user-link"><%= p.user %></a>
-          </td>
-          <td><%= p.views ? p.views.length : 0 %></td>
-          <td><%= p.createdAt.toLocaleString() %></td>
-        </tr>
-      <% }); %>
-    <% } else { %>
+  <form method="GET" action="/" style="margin-bottom: 2rem;">
+    <input type="text" name="q" placeholder="Search pastes..." value="<%= query %>" style="width: 60%; padding: 0.5rem;">
+    <button type="submit" class="search-button">Search</button>
+  </form>
+
+  <table class="pastes-table">
+    <thead>
       <tr>
-        <td colspan="4">No pastes found.</td>
+        <th>Title</th>
+        <th>User</th>
+        <th>Views</th>
+        <th>Created</th>
       </tr>
-    <% } %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% if (pastes.length > 0) { %>
+        <% pastes.forEach((p, index) => { %>
+          <tr class="<%= index % 2 === 0 ? 'even' : 'odd' %>">
+            <!-- Title links to the paste view -->
+            <td>
+              <a href="/paste/<%= p.id %>" class="paste-link"><%= p.title %></a>
+            </td>
+            <!-- User links to the user's profile -->
+            <td>
+              <a href="/profile/<%= p.user %>" class="user-link"><%= p.user %></a>
+            </td>
+            <td><%= p.views ? p.views.length : 0 %></td>
+            <td><%= p.createdAt.toLocaleString() %></td>
+          </tr>
+        <% }); %>
+      <% } else { %>
+        <tr>
+          <td colspan="4">No pastes found.</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>

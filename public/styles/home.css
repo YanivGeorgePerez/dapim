@@ -1,11 +1,51 @@
-/* Textarea styling for paste creation (if applicable) */
+/* ===================== VARIABLES & RESET ===================== */
+:root {
+  --bg: #0a0a0a;
+  --surface: #121212;
+  --surface-2: #1c1c1c;
+  --text: #e5e5e5;
+  --muted: #999;
+  --accent: #ffffff;
+  --accent-hover: #dcdcdc;
+  --border: #2b2b2b;
+  --radius: 6px;         /* Using 6px to match your elements */
+  --shadow: 0 0 0 1px #1c1c1c, 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===================== BASE LINK STYLES ===================== */
+a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* ===================== FORM ELEMENTS ===================== */
+/* Textarea styling for paste creation */
 textarea {
   width: 100%;
   min-height: 200px;
   background-color: #0f0f0f;
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 1rem;
   font-size: 1rem;
   font-family: monospace;
@@ -18,27 +58,32 @@ button {
   padding: 0.7rem 1.5rem;
   background-color: var(--accent);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius);
   color: #000;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-/* New style for search button to tone down the hover color */
+button:hover {
+  background-color: var(--accent-hover);
+}
+
+/* Specific search button styling to avoid overly bright hover */
 .search-button {
-  background-color: #555; /* Muted dark color for search */
+  background-color: #555;
   color: #fff;
 }
 
 .search-button:hover {
-  background-color: #444; /* Slightly darker on hover */
+  background-color: #444;
 }
 
 /* ===================== TABLE STYLING ===================== */
 .pastes-table {
   width: 100%;
   border-collapse: collapse;
+  margin-bottom: 2rem;
 }
 
 .pastes-table th,
@@ -54,29 +99,31 @@ button {
 }
 
 .pastes-table tr.even {
-  background-color: #121212; /* Use your base surface */
+  background-color: #121212;
 }
 
 .pastes-table tr.odd {
-  background-color: #1c1c1c; /* A slightly lighter variant for contrast */
+  background-color: #1c1c1c;
 }
 
 .pastes-table tr:hover {
   background-color: var(--surface-2);
 }
-/* Intro Card Styling */
+
+/* ===================== INTRODUCTION CARD ===================== */
 .intro-card {
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 1.5rem;
-  margin-bottom: 2rem;
+  margin: 1rem auto 2rem;
+  max-width: 1100px;
   box-shadow: var(--shadow);
   color: var(--text);
   font-size: 1rem;
 }
 
-/* Additional optional styling for links in the table */
+/* ===================== LINK STYLING ===================== */
 .paste-link {
   color: var(--accent);
 }
@@ -91,11 +138,4 @@ button {
 
 .user-link:hover {
   text-decoration: underline;
-}
-
-/* Keep your existing table and button styles as-is */
-
-/* Remove button hover override from the general rule if needed */
-button:hover {
-  background-color: var(--accent-hover);
 }
