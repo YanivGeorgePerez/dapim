@@ -2,17 +2,17 @@
   <div class="navbar-content">
     <div class="left-links">
       <a href="/">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9L12 2l9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+        <img src="/resources/logo.png" alt="Home" class="navbar-icon">
         Home
       </a>
       <% if (user) { %>
         <a href="/create">
-          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14m7-7H5"/></svg>
+          <img src="/resources/login.png" alt="Create" class="navbar-icon">
           Create Paste
         </a>
       <% } %>
       <a href="/tos">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/></svg>
+        <img src="/resources/tos.png" alt="Terms" class="navbar-icon">
         Terms
       </a>
     </div>
@@ -21,27 +21,27 @@
       <% if (user) { %>
         <div class="dropdown">
           <button class="dropdown-btn">
-            <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a7.5 7.5 0 0 1 13 0"/></svg>
+            <img src="/resources/profile.png" alt="User" class="navbar-icon">
             <%= user %> ⌄
           </button>
           <div class="dropdown-content">
             <a href="/profile">
-              <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a7.5 7.5 0 0 1 13 0"/></svg>
+              <img src="/resources/profile.png" alt="Profile" class="navbar-icon">
               Profile
             </a>
             <a href="/logout">
-              <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>
+              <img src="/resources/login.png" alt="Logout" class="navbar-icon">
               Logout
             </a>
           </div>
         </div>
       <% } else { %>
         <a href="/login">
-          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+          <img src="/resources/login.png" alt="Login" class="navbar-icon">
           Login
         </a>
         <a href="/register">
-          <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20v-6M6 20v-4m12 4v-4M6 12a6 6 0 1 1 12 0 6 6 0 0 1-12 0Z"/></svg>
+          <img src="/resources/profile.png" alt="Register" class="navbar-icon">
           Register
         </a>
       <% } %>
