@@ -6,7 +6,7 @@
   }
   
   /* Responsive stacking for mobile */
-  @media (max-width: 768px) {
+  @media (max-width: 1200px) {
     .paste-container {
       flex-direction: column;
     }
