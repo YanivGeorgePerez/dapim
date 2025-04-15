@@ -8,7 +8,7 @@
   --accent: #ffffff;
   --accent-hover: #dcdcdc;
   --border: #2b2b2b;
-  --radius: 6px;         /* Using 6px to match your elements */
+  --radius: 6px;
   --shadow: 0 0 0 1px #1c1c1c, 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 
@@ -18,72 +18,31 @@
   padding: 0;
 }
 
-body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ===================== BASE LINK STYLES ===================== */
-a {
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-a:hover {
-  color: var(--accent-hover);
-}
-
-/* ===================== FORM ELEMENTS ===================== */
-/* Textarea styling for paste creation */
-textarea {
-  width: 100%;
-  min-height: 200px;
-  background-color: #0f0f0f;
-  color: var(--text);
+/* ===================== INTRODUCTION CARD ===================== */
+.intro-card {
+  background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1rem;
+  padding: 1.5rem;
+  margin: 1rem auto 2rem;
+  max-width: 1100px;
+  box-shadow: var(--shadow);
+  color: var(--text);
   font-size: 1rem;
-  font-family: monospace;
-  resize: vertical;
 }
 
-/* General button styling */
-button {
-  margin-top: 1rem;
-  padding: 0.7rem 1.5rem;
-  background-color: var(--accent);
-  border: none;
-  border-radius: var(--radius);
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
+/* ===================== TABLE WRAPPER ===================== */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* Enables horizontal scroll if needed */
+  margin-bottom: 1.5rem;
 }
 
-button:hover {
-  background-color: var(--accent-hover);
-}
-
-/* Specific search button styling to avoid overly bright hover */
-.search-button {
-  background-color: #555;
-  color: #fff;
-}
-
-.search-button:hover {
-  background-color: #444;
-}
-
-/* ===================== TABLE STYLING ===================== */
+/* ===================== PASTES TABLE ===================== */
 .pastes-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 2rem;
+  min-width: 600px; /* Sets a natural minimum width */
 }
 
 .pastes-table th,
@@ -110,32 +69,44 @@ button:hover {
   background-color: var(--surface-2);
 }
 
-/* ===================== INTRODUCTION CARD ===================== */
-.intro-card {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
+/* ===================== SEARCH BUTTON ===================== */
+.search-button {
+  margin-top: 1rem;
+  background-color: #555;
+  color: #fff;
   border-radius: var(--radius);
-  padding: 1.5rem;
-  margin: 1rem auto 2rem;
-  max-width: 1100px;
-  box-shadow: var(--shadow);
-  color: var(--text);
-  font-size: 1rem;
+  padding: 0.7rem 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
 }
 
-/* ===================== LINK STYLING ===================== */
-.paste-link {
-  color: var(--accent);
+.search-button:hover {
+  background-color: #444;
 }
 
-.paste-link:hover {
-  text-decoration: underline;
-}
-
+/* ===================== TABLE LINKS ===================== */
+.paste-link,
 .user-link {
   color: var(--accent);
+  transition: color 0.2s;
 }
 
+.paste-link:hover,
 .user-link:hover {
+  color: var(--accent-hover);
   text-decoration: underline;
+}
+
+/* ===================== RESPONSIVE TWEAKS FOR HOMEPAGE ===================== */
+@media (max-width: 768px) {
+  .intro-card {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+  .pastes-table th,
+  .pastes-table td {
+    font-size: 0.85rem;
+  }
 }

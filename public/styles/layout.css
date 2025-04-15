@@ -1,3 +1,4 @@
+/* ===================== VARIABLES & RESET ===================== */
 :root {
   --bg: #0a0a0a;
   --surface: #121212;
@@ -24,13 +25,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ===================== LINKS ===================== */
 a {
   color: var(--accent);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s;
 }
-
 a:hover {
   color: var(--accent-hover);
 }
@@ -48,7 +49,6 @@ a:hover {
   z-index: 100;
   backdrop-filter: blur(8px);
 }
-
 .navbar-content {
   width: 100%;
   max-width: 1100px;
@@ -56,7 +56,6 @@ a:hover {
   justify-content: space-between;
   align-items: center;
 }
-
 .left-links,
 .right-links {
   display: flex;
@@ -64,33 +63,25 @@ a:hover {
   gap: 1.2rem;
 }
 
-/* ===================== NAVBAR ICONS ===================== */
-.nav-icon,
-.navbar-icon {
+/* ------ NAV ICONS (PNG or SVG) ------ */
+.navbar-icon,
+.nav-icon {
   width: 18px;
   height: 18px;
-  min-width: 18px;
-  min-height: 18px;
-  max-width: 18px;
-  max-height: 18px;
   object-fit: contain;
   vertical-align: middle;
   margin-right: 6px;
-  stroke: var(--text);
-  stroke-width: 1.8;
   filter: invert(1);
-  transition: stroke 0.2s, opacity 0.2s;
+  transition: filter 0.2s ease, opacity 0.2s ease;
 }
-
-.navbar a:hover .nav-icon,
-.dropdown-btn:hover .nav-icon,
 .navbar a:hover .navbar-icon,
-.dropdown-btn:hover .navbar-icon {
-  stroke: var(--accent-hover);
+.dropdown-btn:hover .navbar-icon,
+.navbar a:hover .nav-icon,
+.dropdown-btn:hover .nav-icon {
   filter: brightness(1.2);
 }
 
-/* ===================== NAV LINKS & DROPDOWN ===================== */
+/* ------ NAV LINKS & DROPDOWNS ------ */
 .navbar a,
 .dropdown-btn {
   display: inline-flex;
@@ -108,23 +99,18 @@ a:hover {
   cursor: pointer;
   transition: background-color 0.15s ease-in-out;
   line-height: 1;
-  vertical-align: middle;
   appearance: none;
 }
-
 .dropdown-btn {
   margin-top: 0 !important;
 }
-
 .navbar a:hover,
 .dropdown-btn:hover {
   background-color: var(--surface-2);
 }
-
 .dropdown {
   position: relative;
 }
-
 .dropdown-content {
   display: none;
   position: absolute;
@@ -136,18 +122,15 @@ a:hover {
   min-width: 150px;
   z-index: 200;
 }
-
 .dropdown-content a {
   display: block;
   padding: 0.75rem 1rem;
   color: var(--text);
   font-size: 0.95rem;
 }
-
 .dropdown-content a:hover {
   background-color: var(--surface-2);
 }
-
 .dropdown:hover .dropdown-content {
   display: block;
 }
@@ -163,77 +146,11 @@ a:hover {
   box-shadow: var(--shadow);
 }
 
-/* ===================== FORMS ===================== */
-.auth-form,
-.search-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-input,
-textarea {
-  background: #101010;
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 0.8rem 1rem;
-  font-size: 1rem;
-  border-radius: var(--radius);
-  resize: vertical;
-  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-  border-color: #444;
-  background-color: #161616;
-}
-
-button {
-  background-color: var(--accent);
-  color: black;
-  padding: 0.75rem 1.2rem;
-  border: none;
-  font-weight: 600;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-button:hover {
-  background-color: var(--accent-hover);
-}
-
-/* ===================== LISTS & PASTE BLOCK ===================== */
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0;
-}
-
-li {
-  margin: 0.75rem 0;
-}
-
-pre {
-  background: #101010;
-  padding: 1.25rem;
-  border-radius: var(--radius);
-  font-family: 'Fira Code', monospace;
-  font-size: 0.95rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-  border: 1px solid var(--border);
-}
-
 /* ===================== FOOTER ===================== */
 .footer {
   background: var(--surface);
   padding: 1rem;
 }
-
 .footer-container {
   max-width: 1100px;
   margin: 0 auto;
@@ -242,52 +159,50 @@ pre {
   justify-content: center;
   gap: 1rem;
 }
-
 .footer p {
   margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
 }
-
 .github-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: opacity 0.2s;
 }
-
 .github-link:hover {
   opacity: 0.8;
 }
-
 .github-icon {
   width: 24px;
   height: 24px;
   filter: invert(1);
 }
 
-/* ===================== RESPONSIVE ===================== */
+/* ===================== RESPONSIVE (PHONE) ===================== */
 @media (max-width: 768px) {
+  /* Stack nav vertically & ensure consistent spacing */
   .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .navbar-content {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 0.75rem;
+  }
+  .left-links,
+  .right-links {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
 
-  .navbar-content {
-    flex-direction: column;
-    width: 100%;
-    gap: 0.6rem;
-  }
-
-  .left-links,
-  .right-links {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
+  /* Slightly smaller content margins */
   .content {
     margin: 1rem;
-    padding: 1.5rem;
+    padding: 1rem;
   }
 }
