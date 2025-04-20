@@ -68,6 +68,28 @@
 .pastes-table tr:hover {
   background-color: var(--surface-2);
 }
+/* Discord invite styling, reuse your existing icon styles */
+.discord-invite {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.discord-invite a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent);
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.discord-invite a:hover {
+  color: var(--accent-hover);
+}
+.discord-invite .social-icon {
+  width: 20px;
+  height: 20px;
+  filter: invert(1);  /* make sure black icons become white */
+}
 
 /* ===================== SEARCH BUTTON ===================== */
 .search-button {
