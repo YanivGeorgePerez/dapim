@@ -6,12 +6,14 @@ import { setSessionCookie, getUserFromRequest } from "../lib/session.ts";
 import { destroySession } from "../lib/sessionManager.ts";
 import { verifyRecaptcha } from "../lib/recaptcha.ts";
 import { parse } from "cookie";
+import { UserModel } from "../models/userModel.ts";
+import { GroupModel } from "../models/groupModel.ts";
 import path from "path";
 
 const pasteService = new PasteService();
 const authService = new AuthService();
 
-// In‑memory cache for homepage (only when there's no search)
+// In-memory cache for homepage (only when there's no search)
 let homepageCache: {
   timestamp: number;
   pastes: Awaited<ReturnType<PasteService["getRecentPastes"]>>;
@@ -28,43 +30,51 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
       headers: { "Content-Type": "text/html" },
     });
 
-  // -------------------
-  // HOMEPAGE WITH SEARCH + CACHE
-  // -------------------
+  // ----------------------------------
+  // HOMEPAGE WITH SEARCH, CACHE & COLORS
+  // ----------------------------------
   if (req.method === "GET" && url.pathname === "/") {
     const q = url.searchParams.get("q") || "";
 
-    // serve from cache if available and no search
-    if (!q) {
-      const now = Date.now();
-      if (homepageCache && now - homepageCache.timestamp < CACHE_TTL) {
-        const html = await renderEJS("index", {
-          title: "Dapim",
-          cssFile: "/styles/home.css",
-          pastes: homepageCache.pastes,
-          query: q,
-          req,
-          recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || "",
-        });
-        return new Response(html, {
-          status: 200,
-          headers: {
-            "Content-Type": "text/html",
-            "Cache-Control": `public, max-age=${CACHE_TTL / 1000}`,
-          },
-        });
-      }
+    // Serve cache if fresh and no query
+    if (!q && homepageCache && Date.now() - homepageCache.timestamp < CACHE_TTL) {
+      const html = await renderEJS("index", {
+        title: "Dapim",
+        cssFile: "/styles/home.css",
+        pastes: homepageCache.pastes,
+        query: q,
+        req,
+        recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || "",
+      });
+      return new Response(html, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html",
+          "Cache-Control": `public, max-age=${CACHE_TTL / 1000}`,
+        },
+      });
     }
 
     try {
-      const pastes = q
+      // Fetch raw pastes
+      const raw = q
         ? await pasteService.searchPastes(q)
         : await pasteService.getRecentPastes();
 
-      // cache only when no search
-      if (!q) {
-        homepageCache = { timestamp: Date.now(), pastes };
-      }
+      // Enrich with userColor from group
+      const pastes = await Promise.all(
+        raw.map(async (p) => {
+          const u = await UserModel.findByUsername(p.user);
+          const grp = u ? await GroupModel.getByName(u.group) : null;
+          return {
+            ...p,
+            userColor: grp?.color ?? "var(--accent)",
+          };
+        })
+      );
+
+      // Cache if no query
+      if (!q) homepageCache = { timestamp: Date.now(), pastes };
 
       const html = await renderEJS("index", {
         title: "Dapim",
@@ -90,22 +100,17 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
   }
 
   // -------------------
-  // PASTE VIEW PAGE
+  // VIEW A SINGLE PASTE
   // -------------------
   if (req.method === "GET" && url.pathname.startsWith("/paste/")) {
     const pasteId = url.pathname.split("/paste/")[1];
     try {
       const paste = await pasteService.getPasteById(pasteId);
       if (!paste) {
-        return new Response("Paste not found", {
-          status: 404,
-          headers: { "Content-Type": "text/html" },
-        });
+        return new Response("Paste not found", { status: 404, headers: { "Content-Type": "text/html" } });
       }
-      const clientIp =
-        req.headers.get("x-forwarded-for") ||
-        req.headers.get("remote-addr") ||
-        "unknown";
+      // Record view
+      const clientIp = req.headers.get("x-forwarded-for") || req.headers.get("remote-addr") || "unknown";
       await pasteService.addViewToPaste(pasteId, clientIp);
 
       const html = await renderEJS("paste", {
@@ -114,10 +119,7 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
         cssFile: "/styles/paste.css",
         req,
       });
-      return new Response(html, {
-        status: 200,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response(html, { status: 200, headers: { "Content-Type": "text/html" } });
     } catch (err) {
       console.error("Error in paste view route:", err);
       return serverError();
@@ -133,10 +135,7 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
       cssFile: "/styles/home.css",
       req,
     });
-    return new Response(html, {
-      status: 200,
-      headers: { "Content-Type": "text/html" },
-    });
+    return new Response(html, { status: 200, headers: { "Content-Type": "text/html" } });
   }
 
   // -------------------
@@ -149,62 +148,36 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
       req,
       recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || "",
     });
-    return new Response(html, {
-      status: 200,
-      headers: { "Content-Type": "text/html" },
-    });
+    return new Response(html, { status: 200, headers: { "Content-Type": "text/html" } });
   }
 
   // -------------------
-  // CREATE PASTE (POST with ReCAPTCHA)
+  // CREATE PASTE (POST + ReCAPTCHA)
   // -------------------
   if (req.method === "POST" && url.pathname === "/create") {
     const form = await req.formData();
     const pasteTitle = form.get("title")?.toString() || "";
     const content = form.get("content")?.toString() || "";
-    const recaptchaResponse =
-      form.get("g-recaptcha-response")?.toString() || "";
+    const recaptchaResponse = form.get("g-recaptcha-response")?.toString() || "";
 
     if (!(await verifyRecaptcha(recaptchaResponse))) {
-      return new Response("ReCAPTCHA verification failed", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("ReCAPTCHA verification failed", { status: 400, headers: { "Content-Type": "text/html" } });
     }
     if (!pasteTitle.trim() || !content.trim()) {
-      return new Response("Title and content cannot be empty", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Title and content cannot be empty", { status: 400, headers: { "Content-Type": "text/html" } });
     }
     if (pasteTitle.length > 100) {
-      return new Response("Title is too long", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Title is too long", { status: 400, headers: { "Content-Type": "text/html" } });
     }
     if (content.length > 10000) {
-      return new Response("Content is too long", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Content is too long", { status: 400, headers: { "Content-Type": "text/html" } });
     }
 
     try {
       const creator = user || "Anonymous";
-      const paste = await pasteService.createPaste(
-        pasteTitle,
-        content,
-        creator
-      );
-
-      // Invalidate homepage cache immediately
-      homepageCache = null;
-
-      return new Response("", {
-        status: 302,
-        headers: { Location: `/paste/${paste.id}` },
-      });
+      const paste = await pasteService.createPaste(pasteTitle, content, creator);
+      homepageCache = null; // invalidate
+      return new Response("", { status: 302, headers: { Location: `/paste/${paste.id}` } });
     } catch (err) {
       console.error("Error creating paste:", err);
       return serverError();
@@ -221,59 +194,37 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
       req,
       recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || "",
     });
-    return new Response(html, {
-      status: 200,
-      headers: { "Content-Type": "text/html" },
-    });
+    return new Response(html, { status: 200, headers: { "Content-Type": "text/html" } });
   }
 
   // -------------------
-  // REGISTER (POST with ReCAPTCHA)
+  // REGISTER (POST + ReCAPTCHA)
   // -------------------
   if (req.method === "POST" && url.pathname === "/register") {
     const form = await req.formData();
     const username = form.get("username")?.toString() || "";
     const password = form.get("password")?.toString() || "";
-    const recaptchaResponse =
-      form.get("g-recaptcha-response")?.toString() || "";
+    const recaptchaResponse = form.get("g-recaptcha-response")?.toString() || "";
 
     if (!(await verifyRecaptcha(recaptchaResponse))) {
-      return new Response("ReCAPTCHA verification failed", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("ReCAPTCHA verification failed", { status: 400, headers: { "Content-Type": "text/html" } });
     }
     if (!username.trim() || !password.trim()) {
-      return new Response("Username and password cannot be empty", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Username and password cannot be empty", { status: 400, headers: { "Content-Type": "text/html" } });
     }
     if (username.length > 50) {
-      return new Response("Username is too long", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Username is too long", { status: 400, headers: { "Content-Type": "text/html" } });
     }
     if (password.length < 6) {
-      return new Response("Password must be at least 6 characters", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Password must be at least 6 characters", { status: 400, headers: { "Content-Type": "text/html" } });
     }
 
     try {
       await authService.register(username, password);
-      return new Response("", {
-        status: 302,
-        headers: { Location: "/login" },
-      });
+      return new Response("", { status: 302, headers: { Location: "/login" } });
     } catch (err) {
       console.error("Error during registration:", err);
-      return new Response("Registration failed", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Registration failed", { status: 400, headers: { "Content-Type": "text/html" } });
     }
   }
 
@@ -287,33 +238,23 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
       req,
       recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || "",
     });
-    return new Response(html, {
-      status: 200,
-      headers: { "Content-Type": "text/html" },
-    });
+    return new Response(html, { status: 200, headers: { "Content-Type": "text/html" } });
   }
 
   // -------------------
-  // LOGIN (POST with ReCAPTCHA)
+  // LOGIN (POST + ReCAPTCHA)
   // -------------------
   if (req.method === "POST" && url.pathname === "/login") {
     const form = await req.formData();
     const username = form.get("username")?.toString() || "";
     const password = form.get("password")?.toString() || "";
-    const recaptchaResponse =
-      form.get("g-recaptcha-response")?.toString() || "";
+    const recaptchaResponse = form.get("g-recaptcha-response")?.toString() || "";
 
     if (!(await verifyRecaptcha(recaptchaResponse))) {
-      return new Response("ReCAPTCHA verification failed", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("ReCAPTCHA verification failed", { status: 400, headers: { "Content-Type": "text/html" } });
     }
     if (!username.trim() || !password.trim()) {
-      return new Response("Username and password cannot be empty", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Username and password cannot be empty", { status: 400, headers: { "Content-Type": "text/html" } });
     }
 
     try {
@@ -327,25 +268,19 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
       });
     } catch (err) {
       console.error("Login error:", err);
-      return new Response("Login failed", {
-        status: 401,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Login failed", { status: 401, headers: { "Content-Type": "text/html" } });
     }
   }
 
   // -------------------
-  // PROFILE (/profile, /profile/:name)
+  // PROFILE (GET /profile & /profile/:name)
   // -------------------
   if (req.method === "GET" && url.pathname.startsWith("/profile")) {
     let profileUser: string | null = null;
     if (url.pathname === "/profile") {
       profileUser = user;
       if (!profileUser) {
-        return new Response("", {
-          status: 302,
-          headers: { Location: "/login" },
-        });
+        return new Response("", { status: 302, headers: { Location: "/login" } });
       }
     } else {
       profileUser = url.pathname.split("/")[2] || null;
@@ -360,10 +295,7 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
         pastes,
         req,
       });
-      return new Response(html, {
-        status: 200,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response(html, { status: 200, headers: { "Content-Type": "text/html" } });
     } catch (err) {
       console.error("Error loading profile:", err);
       return serverError();
@@ -371,7 +303,7 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
   }
 
   // -------------------
-  // COMMENT SUBMISSION
+  // ADD COMMENT (POST)
   // -------------------
   if (req.method === "POST" && url.pathname.match(/^\/paste\/[^\/]+\/comment$/)) {
     const pasteId = url.pathname.split("/")[2];
@@ -379,36 +311,19 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
     const commentContent = form.get("content")?.toString() || "";
 
     if (!commentContent.trim()) {
-      return new Response("Comment cannot be empty", {
-        status: 400,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Comment cannot be empty", { status: 400, headers: { "Content-Type": "text/html" } });
     }
 
-    const commenter = getUserFromRequest(req) || "Anonymous";
-
+    const commenter = user || "Anonymous";
     try {
-      const comment = await pasteService.addCommentToPaste(
-        pasteId,
-        commenter,
-        commentContent
-      );
+      const comment = await pasteService.addCommentToPaste(pasteId, commenter, commentContent);
       if (!comment) {
-        return new Response("Paste not found", {
-          status: 404,
-          headers: { "Content-Type": "text/html" },
-        });
+        return new Response("Paste not found", { status: 404, headers: { "Content-Type": "text/html" } });
       }
-      return new Response("", {
-        status: 302,
-        headers: { Location: `/paste/${pasteId}` },
-      });
+      return new Response("", { status: 302, headers: { Location: `/paste/${pasteId}` } });
     } catch (err) {
       console.error("Error adding comment:", err);
-      return new Response("Server error", {
-        status: 500,
-        headers: { "Content-Type": "text/html" },
-      });
+      return new Response("Server error", { status: 500, headers: { "Content-Type": "text/html" } });
     }
   }
 
@@ -425,33 +340,24 @@ export const pasteRoutes = async (req: Request): Promise<Response> => {
     }
     return new Response("", {
       status: 302,
-      headers: {
-        "Set-Cookie": "session=; Path=/; Max-Age=0",
-        Location: "/",
-      },
+      headers: { "Set-Cookie": "session=; Path=/; Max-Age=0", Location: "/" },
     });
   }
 
   // -------------------
-  // 404 FALLBACK
+  // FALLBACK 404
   // -------------------
-  return new Response("Not Found", {
-    status: 404,
-    headers: { "Content-Type": "text/html" },
-  });
+  return new Response("Not Found", { status: 404, headers: { "Content-Type": "text/html" } });
 };
 
 // Shared EJS renderer
 async function renderEJS(template: string, data: any): Promise<string> {
   const viewsPath = path.join(import.meta.dir, "../views");
   const ejs = await import("ejs");
-  const body = await ejs.renderFile(
-    path.join(viewsPath, `${template}.ejs`),
-    data
-  );
+  const body = await ejs.renderFile(path.join(viewsPath, `${template}.ejs`), data);
   return await ejs.renderFile(path.join(viewsPath, "layout.ejs"), {
     ...data,
     user: getUserFromRequest(data.req),
     body,
-  });
+  }) as string;
 }
