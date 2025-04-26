@@ -1,7 +1,9 @@
+// src/models/userModel.ts
 import { connectToDB } from "../lib/mongo.ts";
 import { GroupModel }  from "./groupModel.ts";
-import { ObjectId }    from "mongodb";
+import type { ObjectId } from "mongodb";
 
+/* ---------- Types ---------- */
 export interface User {
   _id?       : ObjectId;   // ← Mongo will assign this
   username   : string;
@@ -14,24 +16,31 @@ export type UserWithMethods = User & {
   hasPermission(permission: string): Promise<boolean>;
 };
 
+/* ---------- Collection helpers ---------- */
 export const UserModel = {
+  /** 
+   * Creates a new user in the “Member” group by default.
+   */
   async createUser(username: string, hashedPassword: string): Promise<User> {
     const db = await connectToDB();
-    const user: Omit<User,"_id"> = {
+    const user: Omit<User, "_id"> = {
       username,
       password: hashedPassword,
       createdAt: new Date(),
-      group: "Moderator",
+      group: "Member",       // <-- changed default group
     };
     const res = await db.collection<User>("users").insertOne(user);
-    // attach the returned _id
     return { ...user, _id: res.insertedId };
   },
 
+  /**
+   * Returns null or a UserWithMethods that you can call .hasPermission(...)
+   */
   async findByUsername(username: string): Promise<UserWithMethods | null> {
     const db   = await connectToDB();
     const user = await db.collection<User>("users").findOne({ username });
     if (!user) return null;
+
     return {
       ...user,
       async hasPermission(permission: string) {

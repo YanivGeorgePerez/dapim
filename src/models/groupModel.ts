@@ -1,3 +1,4 @@
+// src/models/groupModel.ts
 import { connectToDB } from "../lib/mongo.ts";
 
 /* ---------- Types ---------- */
@@ -28,18 +29,31 @@ export const GroupModel = {
     const count = await col.countDocuments();
     if (count === 0) {
       await col.insertMany([
-        { name: "Admin",     color: "#FF0000", permissions: ["*"] },
-        { name: "Moderator", color: "#00CCFF", permissions: [
+        {
+          name: "Admin",
+          color: "#FF0000",
+          permissions: ["*"],    // all permissions
+        },
+        {
+          name: "Moderator",
+          color: "#00CCFF",
+          permissions: [
             "delete_paste",
             "delete_comment",
             "ban_user",
-          ]},
+          ],
+        },
+        {
+          name: "Member",
+          color: "#CCCCCC",
+          permissions: [],       // no elevated permissions
+        },
       ]);
-      console.log("✅ Seeded default user groups");
+      console.log("✅ Seeded default user groups (Admin, Moderator, Member)");
     }
   },
 
-  /** NEW – bulk fetch groups by name (used by `homeRoute`). */
+  /** NEW – bulk fetch groups by name (used by homeRoute, etc.) */
   async findManyByNames(names: string[]): Promise<Group[]> {
     if (names.length === 0) return [];
     const db = await connectToDB();
