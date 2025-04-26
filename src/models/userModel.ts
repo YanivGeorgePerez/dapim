@@ -1,43 +1,37 @@
 import { connectToDB } from "../lib/mongo.ts";
 import { GroupModel }  from "./groupModel.ts";
+import { ObjectId }    from "mongodb";
 
-/* ---------- Types ---------- */
 export interface User {
-  username : string;
-  password : string;   // bcrypt hash
-  createdAt: Date;
-  group    : string;   // name of the Group they belong to
+  _id?       : ObjectId;   // ← Mongo will assign this
+  username   : string;
+  password   : string;     // bcrypt hash
+  createdAt  : Date;
+  group      : string;     // group name
 }
 
-/* Handy helper attached to one-off lookups */
 export type UserWithMethods = User & {
   hasPermission(permission: string): Promise<boolean>;
 };
 
-/* ---------- Collection helpers ---------- */
 export const UserModel = {
-  /** Create a user (default group = "Moderator"). */
   async createUser(username: string, hashedPassword: string): Promise<User> {
     const db = await connectToDB();
-    const user: User = {
+    const user: Omit<User,"_id"> = {
       username,
-      password : hashedPassword,
+      password: hashedPassword,
       createdAt: new Date(),
-      group    : "Moderator",
+      group: "Moderator",
     };
-    await db.collection<User>("users").insertOne(user);
-    return user;
+    const res = await db.collection<User>("users").insertOne(user);
+    // attach the returned _id
+    return { ...user, _id: res.insertedId };
   },
 
-  /** Find **one** user and attach `.hasPermission()` helper. */
   async findByUsername(username: string): Promise<UserWithMethods | null> {
     const db   = await connectToDB();
-    const user = await db
-      .collection<User>("users")
-      .findOne({ username });
-
+    const user = await db.collection<User>("users").findOne({ username });
     if (!user) return null;
-
     return {
       ...user,
       async hasPermission(permission: string) {
@@ -49,9 +43,9 @@ export const UserModel = {
     };
   },
 
-  /** NEW – fetch **many** users with a single database call. */
+  /** NEW – bulk-fetch users by username */
   async findManyByUsernames(usernames: string[]): Promise<User[]> {
-    if (usernames.length === 0) return [];
+    if (!usernames.length) return [];
     const db = await connectToDB();
     return db
       .collection<User>("users")

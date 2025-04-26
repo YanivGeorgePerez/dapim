@@ -1,33 +1,48 @@
 import { PasteModel } from "../models/pasteModel.ts";
-import type { Paste, Comment } from "../models/pasteModel.ts";
+import { UserModel }  from "../models/userModel.ts";
+import { ObjectId }   from "mongodb";
+
+import type { Paste, Comment }          from "../models/pasteModel.ts";
+import type { UserWithMethods }         from "../models/userModel.ts";
 
 export class PasteService {
-  async createPaste(title: string, content: string, user: string): Promise<Paste> {
-    return PasteModel.createPaste(title, content, user);
+  async createPaste(
+    title: string,
+    content: string,
+    userId: ObjectId
+  ): Promise<Paste> {
+    return PasteModel.createPaste(title, content, userId);
   }
 
-  async getPasteById(id: string): Promise<Paste | null> {
+  async getPasteById(id: ObjectId): Promise<Paste | null> {
     return PasteModel.getPasteById(id);
   }
 
   async searchPastes(query: string, limit = 20): Promise<Paste[]> {
-    return PasteModel.searchPastes(query, limit);
+    // returns enriched list (PasteForList under the hood)
+    return (await PasteModel.searchWithAuthor(query, limit)) as unknown as Paste[];
   }
 
   async getRecentPastes(limit = 20): Promise<Paste[]> {
-    return PasteModel.getRecentPastes(limit);
+    return (await PasteModel.listRecentWithAuthor(limit)) as unknown as Paste[];
   }
 
-  async addCommentToPaste(pasteId: string, user: string, content: string): Promise<Comment | null> {
-    return PasteModel.addComment(pasteId, user, content);
+  async addCommentToPaste(
+    pasteId: ObjectId,
+    userId: ObjectId,
+    content: string
+  ): Promise<Comment | null> {
+    return PasteModel.addComment(pasteId, userId, content);
   }
 
-  async addViewToPaste(pasteId: string, ip: string): Promise<void> {
+  async addViewToPaste(pasteId: ObjectId, ip: string): Promise<void> {
     return PasteModel.addView(pasteId, ip);
   }
-  
-  // New: Get all pastes created by a user.
+
+  /** Fetch all pastes by a given username */
   async getPastesByUser(username: string): Promise<Paste[]> {
-    return PasteModel.getPastesByUser(username);
+    const u: UserWithMethods | null = await UserModel.findByUsername(username);
+    if (!u || !u._id) return [];
+    return PasteModel.listByUser(u._id);
   }
 }
