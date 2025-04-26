@@ -1,5 +1,4 @@
 <!-- Introduction Card outside the main content container -->
-<!-- Introduction Card outside the main content container -->
 <div class="intro-card">
   <p>
     Welcome to Dapim – your secure paste platform.
@@ -21,16 +20,20 @@
       Join our Discord
     </a>
   </div>
-  
 </div>
-
 
 <!-- Main Content Container -->
 <div class="content">
   <h1>Latest Pastes</h1>
 
   <form method="GET" action="/" style="margin-bottom: 2rem;">
-    <input type="text" name="q" placeholder="Search pastes..." value="<%= query %>" style="width: 60%; padding: 0.5rem;">
+    <input
+      type="text"
+      name="q"
+      placeholder="Search pastes..."
+      value="<%= query %>"
+      style="width: 60%; padding: 0.5rem;"
+    >
     <button type="submit" class="search-button">Search</button>
   </form>
 
@@ -50,15 +53,25 @@
           <% pastes.forEach((p, index) => { %>
             <tr class="<%= index % 2 === 0 ? 'even' : 'odd' %>">
               <td>
-                <a href="/paste/<%= p.id %>" class="paste-link"><%= p.title %></a>
+                <a href="/paste/<%= p.id.toHexString ? p.id.toHexString() : p.id %>"
+                   class="paste-link">
+                  <%= p.title %>
+                </a>
               </td>
               <td>
-                <a href="/profile/<%= p.user %>" class="user-link"><%= p.user %></a>
+                <!-- inline style to color by group -->
+                <a
+                  href="/profile/<%= p.user %>"
+                  class="user-link"
+                  style="color: <%= p.userColor %>;"
+                >
+                  <%= p.user %>
+                </a>
               </td>
-              <td><%= p.views ? p.views.length : 0 %></td>
+              <td><%= p.views.length %></td>
               <td><%= p.createdAt.toLocaleString() %></td>
             </tr>
-          <% }); %>
+          <% }) %>
         <% } else { %>
           <tr>
             <td colspan="4">No pastes found.</td>
