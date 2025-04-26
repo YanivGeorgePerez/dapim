@@ -1,15 +1,14 @@
 // src/app.ts
-import { serve } from "bun";
-import { pasteRoutes } from "./routes/pasteRoutes.ts";
-import path from "path";
+import { serve }        from "bun";
+import { router }       from "./routes/index.ts";   // <-- your combined router
+import path             from "path";
 
-// — your Mongo + Groups bootstrap —
-import { connectToDB } from "./lib/mongo.ts";
-import { GroupModel } from "./models/groupModel.ts";
+import { connectToDB }  from "./lib/mongo.ts";
+import { GroupModel }   from "./models/groupModel.ts";
 
-// Serve static files from the "public" folder
+/* ---------- Static file handler ---------- */
 async function staticFileHandler(req: Request): Promise<Response | null> {
-  const url = new URL(req.url);
+  const url      = new URL(req.url);
   const pathname = url.pathname;
   const filePath = path.join(import.meta.dir, "../public", pathname);
 
@@ -24,54 +23,51 @@ async function staticFileHandler(req: Request): Promise<Response | null> {
   }
 }
 
-// MIME type detection
 function getMimeType(filePath: string): string {
   const ext = path.extname(filePath).toLowerCase();
-  return ({
-    ".css": "text/css",
-    ".js":  "application/javascript",
-    ".html":"text/html",
-    ".json":"application/json",
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".jpeg":"image/jpeg",
-    ".gif": "image/gif",
-    ".svg": "image/svg+xml",
-  } as Record<string,string>)[ext] || "application/octet-stream";
+  return (
+    {
+      ".css": "text/css",
+      ".js": "application/javascript",
+      ".html": "text/html",
+      ".json": "application/json",
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".gif": "image/gif",
+      ".svg": "image/svg+xml",
+    } as Record<string, string>
+  )[ext] || "application/octet-stream";
 }
 
-// Utility to get client IP, respecting Cloudflare's header
-function getClientIp(req: Request): string {
-  return req.headers.get("cf-connecting-ip")
-      || req.headers.get("x-forwarded-for")
-      || req.headers.get("remote-addr")
-      || "unknown";
-}
-
+/* ---------- Bootstrap ---------- */
 async function bootstrap() {
-  // 1) connect to MongoDB
   await connectToDB();
-
-  // 2) seed default groups if needed
   await GroupModel.seedDefaults();
 
-  // 3) now start the HTTP server
-  const server = serve({
+  serve({
     port: 3000,
     async fetch(req) {
-      // 3a) static assets
-      const staticResponse = await staticFileHandler(req);
-      if (staticResponse) return staticResponse;
+      try {
+        /* 1) Static assets */
+        const staticResp = await staticFileHandler(req);
+        if (staticResp) return staticResp;
 
-      // 3b) your application routes
-      return pasteRoutes(req);
+        /* 2) App routes */
+        return await router(req);
+      } catch (err) {
+        // Log detailed error server-side
+        console.error("Unhandled request error:", err);
+        // Show generic message to client
+        return new Response("Server error", { status: 500 });
+      }
     },
   });
 
   console.log("✅ Server running at http://localhost:3000");
 }
 
-bootstrap().catch(err => {
+bootstrap().catch((err) => {
   console.error("Fatal error during startup:", err);
   process.exit(1);
 });

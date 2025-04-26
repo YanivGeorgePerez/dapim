@@ -1,89 +1,173 @@
+// ────────────────────────────────────────────────────────────
+// src/models/pasteModel.ts
+// ────────────────────────────────────────────────────────────
+import { ObjectId }    from "mongodb";
 import { connectToDB } from "../lib/mongo.ts";
 
+/*────────────────────────
+ | Type definitions
+ *────────────────────────*/
 export interface Comment {
-  id: string;
-  user: string;
-  content: string;
+  id:        ObjectId;
+  userId:    ObjectId;
+  content:   string;
   createdAt: Date;
 }
 
 export interface Paste {
-  id: string;
-  title: string;
-  content: string;
-  user: string;       // Creator's username
+  /* We keep our own “id” field so external code never touches Mongo’s _id.   */
+  id:        ObjectId;
+  title:     string;
+  content:   string;
+  userId:    ObjectId;
   createdAt: Date;
-  comments: Comment[];
-  views: string[];    // Array of unique IP addresses
+  comments:  Comment[];
+  views:     string[];      // unique IPs
 }
 
+/** Shape returned to list views (already enriched with author & group data). */
+export interface PasteForList {
+  id:        ObjectId;
+  title:     string;
+  createdAt: Date;
+  views:     string[];
+  user:      string;   // author username
+  userColor: string;   // hex from group
+}
+
+/*────────────────────────
+ | Helper: typed collection
+ *────────────────────────*/
+async function col() {
+  return (await connectToDB()).collection<Paste>("pastes");
+}
+
+/*────────────────────────
+ | PasteModel
+ *────────────────────────*/
 export const PasteModel = {
-  async createPaste(title: string, content: string, user: string): Promise<Paste> {
-    const db = await connectToDB();
-    // Using crypto.randomUUID for a unique paste id (requires Node 15+ or a polyfill)
+  /* create a new paste */
+  async createPaste(
+    title: string,
+    content: string,
+    userId: ObjectId,
+  ): Promise<Paste> {
     const paste: Paste = {
-      id: crypto.randomUUID(),
+      id: new ObjectId(),
       title,
       content,
-      user,
+      userId,
       createdAt: new Date(),
       comments: [],
-      views: []
+      views: [],
     };
-    await db.collection("pastes").insertOne(paste);
+    await (await col()).insertOne(paste);
     return paste;
   },
 
-  async getPasteById(id: string): Promise<Paste | null> {
-    const db = await connectToDB();
-    return await db.collection<Paste>("pastes").findOne({ id });
+  /* get a single paste by its public id */
+  async getPasteById(id: ObjectId): Promise<Paste | null> {
+    return (await col()).findOne({ id });
   },
 
-  async searchPastes(query: string, limit = 20): Promise<Paste[]> {
-    const db = await connectToDB();
-    const cursor = db.collection<Paste>("pastes").find({
-      $or: [
-        { title: { $regex: query, $options: "i" } },
-        { content: { $regex: query, $options: "i" } }
-      ]
-    }).limit(limit);
-    return await cursor.toArray();
-  },
-
-  async getRecentPastes(limit = 20): Promise<Paste[]> {
-    const db = await connectToDB();
-    const cursor = db.collection<Paste>("pastes").find({}).sort({ createdAt: -1 }).limit(limit);
-    return await cursor.toArray();
-  },
-
-  // Add a view: push the IP if not already present.
-  async addView(pasteId: string, ip: string): Promise<void> {
-    const db = await connectToDB();
-    await db.collection<Paste>("pastes").updateOne(
+  /* add a unique view (IP) */
+  async addView(pasteId: ObjectId, ip: string): Promise<void> {
+    await (await col()).updateOne(
       { id: pasteId, views: { $ne: ip } },
-      { $push: { views: ip } }
+      { $push: { views: ip } },
     );
   },
 
-  async addComment(pasteId: string, user: string, content: string): Promise<Comment | null> {
-    const db = await connectToDB();
+  /* add a comment */
+  async addComment(
+    pasteId: ObjectId,
+    userId: ObjectId,
+    content: string,
+  ): Promise<Comment | null> {
     const comment: Comment = {
-      id: crypto.randomUUID(),
-      user,
+      id: new ObjectId(),
+      userId,
       content,
       createdAt: new Date(),
     };
-    const result = await db.collection<Paste>("pastes").updateOne(
+    const res = await (await col()).updateOne(
       { id: pasteId },
-      { $push: { comments: comment } }
+      { $push: { comments: comment } },
     );
-    return result.modifiedCount === 0 ? null : comment;
+    return res.modifiedCount ? comment : null;
   },
 
-  // New: Get all pastes created by a particular user.
-  async getPastesByUser(username: string): Promise<Paste[]> {
-    const db = await connectToDB();
-    const cursor = db.collection<Paste>("pastes").find({ user: username }).sort({ createdAt: -1 });
-    return await cursor.toArray();
-  }
+  /* list helpers (returning enriched objects) */
+  async listRecentWithAuthor(limit = 20): Promise<PasteForList[]> {
+    return this._listWithAuthor({}, limit);
+  },
+
+  async searchWithAuthor(query: string, limit = 20): Promise<PasteForList[]> {
+    return this._listWithAuthor(
+      {
+        $or: [
+          { title:   { $regex: query, $options: "i" } },
+          { content: { $regex: query, $options: "i" } },
+        ],
+      },
+      limit,
+    );
+  },
+
+  /* internal aggregation used by both helpers */
+  async _listWithAuthor(
+    match: Record<string, unknown>,
+    limit = 20,
+  ): Promise<PasteForList[]> {
+    return (await col())
+      .aggregate<PasteForList>([
+        { $match: match },
+        { $sort: { createdAt: -1 } },
+        { $limit: limit },
+
+        /* join author */
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "author",
+          },
+        },
+        { $unwind: "$author" },
+
+        /* join group */
+        {
+          $lookup: {
+            from: "groups",
+            localField: "author.group",
+            foreignField: "name",
+            as: "grp",
+          },
+        },
+        { $unwind: "$grp" },
+
+        /* final projection */
+        {
+          $project: {
+            _id:        0,
+            id:         "$id",
+            title:      1,
+            createdAt:  1,
+            views:      1,
+            user:       "$author.username",
+            userColor:  "$grp.color",
+          },
+        },
+      ])
+      .toArray();
+  },
+
+  /* pastes by one user */
+  async listByUser(userId: ObjectId): Promise<Paste[]> {
+    return (await col())
+      .find({ userId })
+      .sort({ createdAt: -1 })
+      .toArray();
+  },
 };
