@@ -1,4 +1,4 @@
-# Dapim
+# [Dapim](https://dapim.xyz)
 
 **Dapim** is a minimal, privacy-focused pastebin-style web application built with Bun, TypeScript, MongoDB, and EJS templates.
 
