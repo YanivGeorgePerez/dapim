@@ -1,3 +1,4 @@
+// src/routes/paste.ts
 import { PasteService }       from "../services/pasteService.ts";
 import { verifyRecaptcha }    from "../lib/recaptcha.ts";
 import { getUserFromRequest } from "../lib/session.ts";
@@ -7,6 +8,15 @@ import { ObjectId }           from "mongodb";
 
 const service = new PasteService();
 
+function getClientIp(req: Request): string {
+  return (
+    req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-forwarded-for") ||
+    req.headers.get("remote-addr") ||
+    "unknown"
+  );
+}
+
 export const pasteRoutes = [
   // GET /paste/:id
   async function viewPaste(req: Request): Promise<Response | null> {
@@ -14,8 +24,13 @@ export const pasteRoutes = [
     const m = new URL(req.url).pathname.match(/^\/paste\/([0-9a-fA-F]{24})$/);
     if (!m) return null;
 
-    const paste = await service.getPasteById(new ObjectId(m[1]));
+    const id = new ObjectId(m[1]);
+    const paste = await service.getPasteById(id);
     if (!paste) return new Response("Not found", { status: 404 });
+
+    // record a view
+    const ip = getClientIp(req);
+    await service.addViewToPaste(id, ip);
 
     const html = await renderEJS("paste", {
       title:   `Paste: ${paste.title}`,
